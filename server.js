@@ -149,3 +149,70 @@ app.post('/webhook', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
+import express from "express";
+import fetch from "node-fetch";
+
+const app = express();
+app.use(express.json());
+
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
+app.get("/webhook", (req, res) => {
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+
+  if (mode && token === VERIFY_TOKEN) {
+    return res.status(200).send(challenge);
+  }
+
+  res.sendStatus(403);
+});
+
+app.post("/webhook", async (req, res) => {
+  const body = req.body;
+
+  if (body.entry) {
+    const message = body.entry[0].changes[0].value.messages?.[0];
+
+    if (message) {
+      const from = message.from;
+
+      const reply = `
+Merhaba 👋
+
+YapadaDükkan WhatsApp destek hattına hoşgeldiniz.
+
+1️⃣ Ürün fiyatı öğren  
+2️⃣ Mağaza konumu  
+3️⃣ Online mağaza  
+
+Lütfen bir numara yazın.
+`;
+
+      await fetch(
+        `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            text: { body: reply }
+          })
+        }
+      );
+    }
+  }
+
+  res.sendStatus(200);
+});
+
+app.listen(3000, () => {
+  console.log("Bot çalışıyor 🚀");
+});
