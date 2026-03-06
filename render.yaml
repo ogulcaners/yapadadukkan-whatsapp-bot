@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: yapadadukkan-whatsapp-bot
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GRAPH_API_VERSION
+        value: v23.0
+      - key: BUSINESS_NAME
+        value: YapadaDukkan
+      - key: VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: PHONE_NUMBER_ID
+        sync: false
