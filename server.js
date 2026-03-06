@@ -122,6 +122,30 @@ app.get('/webhook', (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
+  const incomingMessage = req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+
+if (incomingMessage) {
+
+  const from = incomingMessage.from;
+
+  const messageText = `
+Merhaba 👋
+
+YapadaDükkan WhatsApp destek hattına hoşgeldiniz.
+
+1️⃣ Ürün fiyatı öğren  
+2️⃣ Mağaza konumu  
+3️⃣ Online mağaza  
+
+Lütfen bir numara yazın.
+`;
+
+  await sendWhatsAppMessage(
+    from,
+    getTextMessageBody(messageText)
+  );
+
+}
   try {
     const entry = req.body?.entry?.[0];
     const changes = entry?.changes?.[0];
